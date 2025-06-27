@@ -4,9 +4,10 @@ import dotenv from "dotenv";
 import { createConnectionToDatabase } from "./config/database";
 import { createConnectionToRedis } from "./config/redis";
 import { authRouter } from "./infraestructure/routes/auth.routes";
+import { quotationRouter } from "./infraestructure/routes/quotation.routes";
+import { shipmentRouter } from "./infraestructure/routes/shipment.routes";
 import { errorHandler } from "./infraestructure/middlewares/error.middleware";
 import { APP_CONFIG } from "./config/constants";
-import { quotationRouter } from "./infraestructure/routes/quotation.routes";
 
 dotenv.config();
 
@@ -17,7 +18,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRouter);
-app.use("/api", quotationRouter);
+app.use("/api/quotation", quotationRouter);
+app.use("/api/shipment", shipmentRouter);
 
 app.use(errorHandler);
 

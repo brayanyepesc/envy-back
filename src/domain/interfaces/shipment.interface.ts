@@ -1,34 +1,28 @@
-export interface ShippingOrder {
+export interface Shipment {
   id?: number;
   userId: number;
-  quoteId: number;
+  origin: string;
+  destination: string;
   package: {
     weight: number;
     length: number;
     width: number;
     height: number;
   };
-  origin: string;
-  destination: string;
-  recipient: {
-    name: string;
-    phone: string;
-    address: string;
-  };
-  price: number;
+  quotedPrice: number;
   status: ShippingStatus;
   trackingNumber?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export type ShippingStatus = 'En espera' | 'En tránsito' | 'Entregado';
+export type ShippingStatus = 'waiting' | 'in_transit' | 'delivered';
 
-export interface ShippingStatusHistory {
+export interface ShipmentStatusHistory {
   id?: number;
-  orderId: number;
+  shipmentId: number;
   status: ShippingStatus;
   description: string;
   location?: string;
   createdAt: Date;
-} 
+}

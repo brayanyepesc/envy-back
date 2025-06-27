@@ -1,7 +1,7 @@
 export const APP_CONFIG = {
   PORT: process.env.PORT || 8000,
   NODE_ENV: process.env.NODE_ENV || 'development',
-  JWT_SECRET: process.env.JWT_SECRET || 'your-secret-key',
+  JWT_SECRET: process.env.JWT_SECRET || 'supersecretkey',
   JWT_EXPIRES_IN: '15m',
   SALT_ROUNDS: 10,
   PASSWORD_MIN_LENGTH: 6,
@@ -27,6 +27,7 @@ export const ERROR_MESSAGES = {
     INVALID_DIMENSIONS: "Las dimensiones deben ser mayores a 0",
     INVALID_ORIGIN_DESTINATION: "Origen y destino son obligatorios",
     TARIFF_NOT_FOUND: "Tarifa no encontrada para la ruta especificada",
+    INVALID_PRICE: "El precio debe ser mayor a 0",
   },
   AUTH: {
     EMAIL_EXISTS: "Email ya registrado",
@@ -38,5 +39,14 @@ export const ERROR_MESSAGES = {
     FIND_ERROR: "Error al buscar usuario",
     TARIFF_NOT_FOUND: "Tarifa no encontrada",
     TARIFF_FIND_ERROR: "Error al buscar tarifa",
+    SHIPMENT_CREATE_ERROR: "Error al crear envío",
+    SHIPMENT_FIND_ERROR: "Error al buscar envío",
+    STATUS_HISTORY_CREATE_ERROR: "Error al crear historial de estado",
   },
+} as const;
+
+export const SHIPPING_STATUS = {
+  WAITING: 'waiting',
+  IN_TRANSIT: 'in_transit',
+  DELIVERED: 'delivered',
 } as const; 
