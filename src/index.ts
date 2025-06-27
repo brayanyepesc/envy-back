@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { createConnectionToDatabase } from "./config/database";
 import { createConnectionToRedis } from "./config/redis";
+import { authRouter } from "./infraestructure/routes/auth.routes";
 
 dotenv.config();
 
@@ -11,6 +12,10 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 app.use(cors());
+
+app.use(express.json());
+
+app.use("/api/auth", authRouter);
 
 app.use(express.json());
 
