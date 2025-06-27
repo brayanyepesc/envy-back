@@ -1,6 +1,7 @@
 import express from "express";
 import { UserRepository } from "../../persistence/user.repository";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const authRouter = express.Router();
 
@@ -35,5 +36,27 @@ authRouter.post("/register", (req, res, next) => {
       phone,
     });
     res.status(201).json({ message: "Usuario registrado correctamente." });
+  })().catch(next);
+});
+
+authRouter.post("/login", (req, res, next) => {
+  (async () => {
+    const { email, password } = req.body;
+
+    if (!email || !password)
+      return res
+        .status(400)
+        .json({ message: "Email y contraseña son obligatorios." });
+
+    const user = await UserRepository.findByEmail(email);
+    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(400).json({ message: "Invalid credentials" });
+
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!, {
+      expiresIn: "15m",
+    });
+
+    res.json({ token });
   })().catch(next);
 });
