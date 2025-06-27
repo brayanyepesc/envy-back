@@ -1,8 +1,8 @@
 export const APP_CONFIG = {
   PORT: process.env.PORT || 8000,
   NODE_ENV: process.env.NODE_ENV || 'development',
-  JWT_SECRET: process.env.JWT_SECRET || 'your-secret-key',
-  JWT_EXPIRES_IN: '15m',
+  JWT_SECRET: process.env.JWT_SECRET || 'supersecretkey',
+  JWT_EXPIRES_IN: '1h',
   SALT_ROUNDS: 10,
   PASSWORD_MIN_LENGTH: 6,
 } as const;
@@ -31,5 +31,6 @@ export const ERROR_MESSAGES = {
     USER_NOT_FOUND: "Usuario no encontrado",
     CREATE_ERROR: "Error al crear usuario",
     FIND_ERROR: "Error al buscar usuario",
+    TARIFF_NOT_FOUND: "Tarifa no encontrada",
   },
 } as const; 
