@@ -21,7 +21,7 @@ quotationRouter.post("/quotation", authenticate, asyncHandler(async (req, res) =
   });
 }));
 
-quotationRouter.get("/tariffs", asyncHandler(async (req, res) => {
+quotationRouter.get("/tariffs", authenticate,asyncHandler(async (req, res) => {
   const tariffs = await QuotationService.getAllTariffs();
   res.json({
     success: true,
