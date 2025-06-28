@@ -39,8 +39,7 @@ shipmentRouter.get(
   "/",
   authenticate,
   asyncHandler(async (req, res) => {
-    const userId = (req as any).user.id;
-    const shipments = await ShipmentService.getUserShipments(userId);
+    const shipments = await ShipmentService.getUserShipments(req);
     
     res.json({
       success: true,

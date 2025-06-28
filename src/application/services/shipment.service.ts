@@ -3,8 +3,17 @@ import { CreateShipmentRequestDto, CreateShipmentResponseDto, ShipmentDetailsRes
 import { Shipment } from "../../domain/interfaces/shipment.interface";
 import { createError } from "../../infraestructure/middlewares/error.middleware";
 import { ERROR_MESSAGES, HTTP_STATUS, SHIPPING_STATUS } from "../../config/constants";
+import { Request } from "express";
 
 export class ShipmentService {
+  private static extractUserIdFromRequest(req: Request): number {
+    const user = (req as any).user;
+    if (!user || !user.id) {
+      throw createError("Usuario no autenticado", HTTP_STATUS.UNAUTHORIZED);
+    }
+    return user.id;
+  }
+
   static validateShipmentData(data: any): CreateShipmentRequestDto {
     const { origin, destination, weight, length, width, height, quotedPrice } = data;
 
@@ -84,7 +93,8 @@ export class ShipmentService {
     };
   }
 
-  static async getUserShipments(userId: number): Promise<ShipmentDetailsResponseDto[]> {
+  static async getUserShipments(req: Request): Promise<ShipmentDetailsResponseDto[]> {
+    const userId = this.extractUserIdFromRequest(req);
     const shipments = await ShipmentRepository.findByUserId(userId);
     
     return shipments.map(shipment => ({
