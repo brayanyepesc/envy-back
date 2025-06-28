@@ -61,7 +61,7 @@ export class AuthService {
       throw createError(ERROR_MESSAGES.VALIDATION.INVALID_EMAIL, HTTP_STATUS.BAD_REQUEST);
     }
 
-    return { nickname, names, lastnames, email, password, city, phone };
+    return { nickname, names, lastnames, email, password, city };
 
   }
 

@@ -32,7 +32,6 @@ export class UserRepository {
           user.email,
           user.password,
           user.city,
-          user.phone,
         ]
       );
     } catch (error) {
