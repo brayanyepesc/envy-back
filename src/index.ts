@@ -10,6 +10,7 @@ import { errorHandler } from "./infraestructure/middlewares/error.middleware";
 import { rateLimit, RATE_LIMITS } from "./infraestructure/middlewares/rate-limit.middleware";
 import { RedisCache } from "./config/redis";
 import { APP_CONFIG } from "./config/constants";
+import { specs, swaggerUi } from "./config/swagger";
 
 dotenv.config();
 
@@ -21,6 +22,12 @@ app.use(express.json());
 
 // Rate limiting global moderado
 app.use(rateLimit(RATE_LIMITS.MODERATE));
+
+// Swagger documentation
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Envy Back API Documentation'
+}));
 
 app.use("/api/auth", authRouter);
 app.use("/api/quotation", quotationRouter);
@@ -44,6 +51,7 @@ app.listen(APP_CONFIG.PORT, async () => {
     await createConnectionToRedis();
     console.log(`Servidor corriendo en el puerto ${APP_CONFIG.PORT}`);
     console.log(`Entorno: ${APP_CONFIG.NODE_ENV}`);
+    console.log(`Documentación Swagger disponible en: http://localhost:${APP_CONFIG.PORT}/docs`);
   } catch (error) {
     console.error("Error al iniciar el servidor:", error);
     process.exit(1);
