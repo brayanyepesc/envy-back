@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { RedisCache } from "../../config/redis";
 
 export function authenticate(req: Request, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
@@ -16,8 +17,21 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
   
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET!) as any;
-    (req as any).user = payload;
-    next();
+    
+    // Verificar si el token está en la blacklist
+    RedisCache.isBlacklisted(token).then((isBlacklisted) => {
+      if (isBlacklisted) {
+        res.status(403).json({ success: false, message: "Token inválido o expirado" });
+        return;
+      }
+      
+      (req as any).user = payload;
+      next();
+    }).catch(() => {
+      // Si hay error al verificar Redis, continuar sin verificación de blacklist
+      (req as any).user = payload;
+      next();
+    });
   } catch (error) {
     res.status(403).json({ success: false, message: "Token inválido o expirado" });
   }

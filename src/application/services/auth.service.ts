@@ -4,6 +4,7 @@ import { UserRepository } from "../../persistence/repositories/user.repository";
 import { RegisterDto, LoginDto } from "../../domain/dto/auth.dto";
 import { User } from "../../domain/interfaces/user.interface";
 import { createError } from "../../infraestructure/middlewares/error.middleware";
+import { RedisCache } from "../../config/redis";
 import {
   APP_CONFIG,
   ERROR_MESSAGES,
@@ -119,5 +120,15 @@ export class AuthService {
   private static isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  }
+
+  static async logout(token: string, userId: number): Promise<void> {
+    try {
+      // Agregar el token a la blacklist en Redis
+      await RedisCache.addToBlacklist(token, userId);
+    } catch (error) {
+      console.error("Error al hacer logout:", error);
+      // No lanzar error para no afectar la experiencia del usuario
+    }
   }
 }

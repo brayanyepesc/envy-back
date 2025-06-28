@@ -4,6 +4,7 @@ import { Shipment } from "../../domain/interfaces/shipment.interface";
 import { createError } from "../../infraestructure/middlewares/error.middleware";
 import { ERROR_MESSAGES, HTTP_STATUS, SHIPPING_STATUS } from "../../config/constants";
 import { Request } from "express";
+import { RedisCache } from "../../config/redis";
 
 export class ShipmentService {
   private static extractUserIdFromRequest(req: Request): number {
@@ -65,6 +66,9 @@ export class ShipmentService {
       throw createError(ERROR_MESSAGES.DATABASE.SHIPMENT_FIND_ERROR, HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 
+    // Invalidar cache de envíos del usuario
+    await RedisCache.invalidateUserShipments(userId);
+
     return {
       id: shipmentId,
       trackingNumber: createdShipment.trackingNumber!,
@@ -74,13 +78,19 @@ export class ShipmentService {
   }
 
   static async getShipmentById(shipmentId: number): Promise<ShipmentDetailsResponseDto> {
+    // Intentar obtener del cache primero
+    const cachedShipment = await RedisCache.getCachedShipmentDetails(shipmentId);
+    if (cachedShipment) {
+      return cachedShipment;
+    }
+
     const shipment = await ShipmentRepository.findById(shipmentId);
     
     if (!shipment) {
       throw createError("Shipment not found", HTTP_STATUS.BAD_REQUEST);
     }
 
-    return {
+    const shipmentResponse = {
       id: shipment.id!,
       trackingNumber: shipment.trackingNumber!,
       status: shipment.status,
@@ -91,13 +101,25 @@ export class ShipmentService {
       createdAt: shipment.createdAt!,
       updatedAt: shipment.updatedAt!,
     };
+
+    // Guardar en cache
+    await RedisCache.cacheShipmentDetails(shipmentId, shipmentResponse);
+
+    return shipmentResponse;
   }
 
   static async getUserShipments(req: Request): Promise<ShipmentDetailsResponseDto[]> {
     const userId = this.extractUserIdFromRequest(req);
+    
+    // Intentar obtener del cache primero
+    const cachedShipments = await RedisCache.getCachedUserShipments(userId);
+    if (cachedShipments) {
+      return cachedShipments;
+    }
+
     const shipments = await ShipmentRepository.findByUserId(userId);
     
-    return shipments.map(shipment => ({
+    const shipmentsResponse = shipments.map(shipment => ({
       id: shipment.id!,
       trackingNumber: shipment.trackingNumber!,
       status: shipment.status,
@@ -108,6 +130,11 @@ export class ShipmentService {
       createdAt: shipment.createdAt!,
       updatedAt: shipment.updatedAt!,
     }));
+
+    // Guardar en cache
+    await RedisCache.cacheUserShipments(userId, shipmentsResponse);
+
+    return shipmentsResponse;
   }
 
   static async getShipmentTracking(trackingNumber: string) {
