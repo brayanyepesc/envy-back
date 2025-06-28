@@ -47,9 +47,9 @@ export class AuthService {
 
   static validateRegisterData(data: any): RegisterDto {
 
-    const { nickname, names, lastnames, email, password, city, phone } = data;
+    const { nickname, names, lastnames, email, password, city } = data;
     
-    if (!nickname || !names || !lastnames || !email || !password || !city || !phone) {
+    if (!nickname || !names || !lastnames || !email || !password || !city) {
       throw createError(ERROR_MESSAGES.VALIDATION.REQUIRED_FIELDS, HTTP_STATUS.BAD_REQUEST);
     }
 

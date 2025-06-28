@@ -23,8 +23,8 @@ export class UserRepository {
     try {
       await getConnection().execute(
         `INSERT INTO users 
-        (nickname, names, lastnames, email, password, city, phone)
-        VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        (nickname, names, lastnames, email, password, city)
+        VALUES (?, ?, ?, ?, ?, ?)`,
         [
           user.nickname,
           user.names,
