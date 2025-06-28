@@ -16,9 +16,10 @@ authRouter.post("/register", asyncHandler(async (req, res) => {
 
 authRouter.post("/login", asyncHandler(async (req, res) => {
   const credentials = AuthService.validateLoginData(req.body);
-  const token = await AuthService.login(credentials);
+  const { token, user } = await AuthService.login(credentials);
   res.json({
     success: true,
-    token
+    token,
+    user
   });
 }));
