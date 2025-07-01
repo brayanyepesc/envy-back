@@ -26,7 +26,7 @@ Sistema backend para la gestión de cotización, generación y rastreo de envío
 
 - **Framework:** Express.js
 - **Lenguaje:** TypeScript
-- **Base de datos:** MySQL o PostgreSQL (configurable)
+- **Base de datos:** MySQL (configurable)
 - **Cache:** Redis
 - **Autenticación:** JWT (JSON Web Token)
 - **Documentación:** Swagger
@@ -71,8 +71,7 @@ El proyecto sigue los principios de Clean Architecture, separando responsabilida
    DB_USER=usuario
    DB_PASSWORD=contraseña
    DB_NAME=envy_db
-   REDIS_HOST=localhost
-   REDIS_PORT=6379
+   REDIS_URL=
    JWT_SECRET=tu_clave_secreta
    ```
 
@@ -144,7 +143,7 @@ src/
 
 ### Seguimiento en Tiempo Real
 
-- **WebSocket o Polling:**  
+- **Polling:**  
   Permite recibir actualizaciones del estado del envío en tiempo real.  
   (Ver detalles en la documentación Swagger)
 
@@ -171,7 +170,7 @@ src/
 ## Seguimiento en Tiempo Real
 
 - El usuario puede consultar el estado de sus envíos en tiempo real.
-- Se implementa mediante WebSockets o polling (según configuración).
+- Se implementa mediante polling (según configuración).
 - Se mantiene un histórico de los estados del envío.
 
 ---
@@ -210,6 +209,5 @@ src/
 
 ## Notas Finales
 
-- Este backend está listo para integrarse con un frontend en React (microfrontends, JWT, Material-UI, etc.).
 - Para cualquier duda, consulta la documentación Swagger o el código fuente.
 - Recuerda ajustar las variables de entorno y la configuración de la base de datos/Redis según tu entorno local o de producción. 
