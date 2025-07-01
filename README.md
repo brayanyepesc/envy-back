@@ -19,6 +19,7 @@ Sistema backend para la gestión de cotización, generación y rastreo de envío
 - [Documentación Swagger](#documentación-swagger)
 - [Consideraciones Técnicas](#consideraciones-técnicas)
 - [Notas Finales](#notas-finales)
+- [Inicialización de la Base de Datos](#inicialización-de-la-base-de-datos)
 
 ---
 
@@ -211,3 +212,109 @@ src/
 
 - Para cualquier duda, consulta la documentación Swagger o el código fuente.
 - Recuerda ajustar las variables de entorno y la configuración de la base de datos/Redis según tu entorno local o de producción. 
+
+---
+
+## Inicialización de la Base de Datos
+
+Para que el backend funcione correctamente, es necesario crear las tablas y poblar la tabla de tarifas en la base de datos MySQL. A continuación se describen los pasos y el orden recomendado para ejecutar los scripts SQL:
+
+### 1. Crear las tablas
+
+Ejecuta los siguientes scripts en tu base de datos MySQL, en este orden:
+
+1. **Tabla de usuarios**
+    ```sql
+    CREATE TABLE users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      nombres VARCHAR(100) NOT NULL,
+      apellidos VARCHAR(100) NOT NULL,
+      email VARCHAR(255) NOT NULL UNIQUE,
+      password VARCHAR(255) NOT NULL,
+      ciudad VARCHAR(100) NOT NULL,
+      nickname VARCHAR(100) NOT NULL UNIQUE
+    );
+    ```
+
+2. **Tabla de envíos**
+    ```sql
+    CREATE TABLE IF NOT EXISTS shipments (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      origin VARCHAR(100) NOT NULL,
+      destination VARCHAR(100) NOT NULL,
+      package_weight DECIMAL(10,2) NOT NULL,
+      package_length DECIMAL(10,2) NOT NULL,
+      package_width DECIMAL(10,2) NOT NULL,
+      package_height DECIMAL(10,2) NOT NULL,
+      quoted_price DECIMAL(10,2) NOT NULL,
+      status ENUM('waiting', 'in_transit', 'delivered') DEFAULT 'waiting',
+      tracking_number VARCHAR(20) UNIQUE NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_user_id (user_id),
+      INDEX idx_tracking_number (tracking_number),
+      INDEX idx_status (status)
+    );
+    ```
+
+3. **Tabla de historial de estados de envío**
+    ```sql
+    CREATE TABLE IF NOT EXISTS shipment_status_history (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      shipment_id INT NOT NULL,
+      status ENUM('waiting', 'in_transit', 'delivered') NOT NULL,
+      description TEXT NOT NULL,
+      location VARCHAR(100),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (shipment_id) REFERENCES shipments(id) ON DELETE CASCADE,
+      INDEX idx_shipment_id (shipment_id),
+      INDEX idx_created_at (created_at)
+    );
+    ```
+
+4. **Tabla de tarifas**
+    ```sql
+    CREATE TABLE tariffs (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      origin VARCHAR(100) NOT NULL,
+      destination VARCHAR(100) NOT NULL,
+      price_per_kg DECIMAL(10,2) NOT NULL
+    );
+    ```
+
+### 2. Poblar la tabla de tarifas
+
+Después de crear la tabla `tariffs`, inserta los valores iniciales con el siguiente script:
+
+```sql
+INSERT INTO tariffs (origin, destination, price_per_kg)
+VALUES
+('Bogotá', 'Medellín', 5000),
+('Bogotá', 'Cali', 5500),
+('Bogotá', 'Barranquilla', 6000),
+('Bogotá', 'Cartagena', 6200),
+('Medellín', 'Bogotá', 5000),
+('Medellín', 'Cali', 5200),
+('Medellín', 'Barranquilla', 5800),
+('Medellín', 'Cartagena', 6000),
+('Cali', 'Bogotá', 5500),
+('Cali', 'Medellín', 5200),
+('Cali', 'Barranquilla', 5900),
+('Cali', 'Cartagena', 6100),
+('Barranquilla', 'Bogotá', 6000),
+('Barranquilla', 'Medellín', 5800),
+('Barranquilla', 'Cali', 5900),
+('Barranquilla', 'Cartagena', 4000),
+('Cartagena', 'Bogotá', 6200),
+('Cartagena', 'Medellín', 6000),
+('Cartagena', 'Cali', 6100),
+('Cartagena', 'Barranquilla', 4000);
+```
+
+---
+
+**Recomendaciones:**
+- Puedes ejecutar estos scripts usando un cliente MySQL como MySQL Workbench, DBeaver, phpMyAdmin o desde la terminal.
+- Asegúrate de tener creada la base de datos (`CREATE DATABASE envy_db;`) y seleccionada antes de ejecutar los scripts (`USE envy_db;`).
+- Si necesitas modificar los nombres de las tablas o campos, asegúrate de actualizar también el código fuente correspondiente. 
