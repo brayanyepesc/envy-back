@@ -316,5 +316,5 @@ VALUES
 
 **Recomendaciones:**
 - Puedes ejecutar estos scripts usando un cliente MySQL como MySQL Workbench, DBeaver, phpMyAdmin o desde la terminal.
-- Asegúrate de tener creada la base de datos (`CREATE DATABASE envy_db;`) y seleccionada antes de ejecutar los scripts (`USE envy_db;`).
+- Asegúrate de tener creada la base de datos (`CREATE DATABASE envy;`) y seleccionada antes de ejecutar los scripts (`USE envy;`).
 - Si necesitas modificar los nombres de las tablas o campos, asegúrate de actualizar también el código fuente correspondiente. 
